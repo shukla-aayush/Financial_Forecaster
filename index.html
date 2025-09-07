@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Financial Analyst (India)</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="stylesheets/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-100 font-sans antialiased">
 
@@ -13,15 +13,15 @@
 
         <section id="input-section" class="bg-white rounded-xl shadow-lg p-6 md:p-8 w-full max-w-3xl mx-auto mb-8 transition-all duration-300">
             <h1 class="text-3xl md:text-4xl font-bold text-gray-800 text-center mb-2">AI Financial Analyst (India)</h1>
-            <p class="text-center text-gray-500 mb-6">Enter an Indian stock ticker to get an AI-powered analysis.</p>
+            <p class="text-center text-gray-500 mb-6">Enter a stock ticker to get an AI-powered analysis.</p>
             <div class="flex flex-col sm:flex-row gap-4">
-                <input type="text" id="tickerInput" placeholder="e.g., INFY.NS, RELIANCE.NS, TCS.BO" class="flex-grow w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors">
+                <input type="text" id="tickerInput" placeholder="e.g., INFY.NS, RELIANCE.NS, AAPL.US" class="flex-grow w-full px-4 py-3 text-lg border-2 border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 transition-colors">
                 <button id="analyzeBtn" class="w-full sm:w-auto bg-blue-600 text-white font-bold text-lg px-8 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-200">
                     Analyze
                 </button>
             </div>
              <p class="text-center text-xs text-gray-400 mt-3">
-                Tip: Use <strong class="font-semibold">.NS</strong> for National Stock Exchange (NSE) or <strong class="font-semibold">.BO</strong> for Bombay Stock Exchange (BSE) tickers.
+                Tip: Use <strong class="font-semibold">.NS</strong> for NSE, <strong class="font-semibold">.BO</strong> for BSE, or <strong class="font-semibold">.US</strong> for US exchanges.
             </p>
         </section>
 
@@ -40,7 +40,7 @@
             <div class="lg:col-span-1 flex flex-col gap-6">
                 <div class="bg-white p-6 rounded-xl shadow-lg">
                      <div class="flex items-center gap-4">
-                        <img id="companyLogo" src="https://via.placeholder.com/64" alt="Company Logo" class="h-16 w-16 rounded-full bg-gray-200">
+                        <img id="companyLogo" src="https://via.placeholder.com/64" alt="Company Logo" class="h-16 w-16 rounded-full bg-gray-200 object-contain">
                         <div>
                             <h2 id="companyName" class="text-2xl font-bold text-gray-900">Company Name</h2>
                             <p id="companyTicker" class="text-lg text-gray-500 font-mono">TICKER</p>
@@ -106,7 +106,7 @@
                     <span id="newsSentiment" class="px-3 py-1 text-sm font-bold uppercase rounded-full">--</span>
                 </div>
                 <ul id="newsList" class="space-y-3 list-disc list-inside text-gray-700 max-h-80 overflow-y-auto pr-2">
-                    </ul>
+                </ul>
             </div>
         </section>
 
@@ -117,6 +117,6 @@
         </footer>
     </main>
 
-    <script src="scripts/script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
