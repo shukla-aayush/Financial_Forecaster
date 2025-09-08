@@ -1,5 +1,5 @@
 // --- ⬇️ IMPORTANT: ADD YOUR API KEY HERE ⬇️ ---
-const GEMINI_API_KEY = "AIzaSyDOTksI9KbJy8YRqDbY6PBKtyxUIBayH2s"; // Get from Google AI Studio.
+const GEMINI_API_KEY = "Yahan API daalna hai"; // Get from Google AI Studio.
 
 // --- DOM Element References ---
 const searchInput = document.getElementById('company-search-input');
@@ -312,4 +312,5 @@ analyzeButton.addEventListener('click', handleAnalysisRequest);
 searchInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') handleAnalysisRequest();
 });
+
 
