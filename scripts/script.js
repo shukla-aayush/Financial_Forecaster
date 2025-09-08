@@ -1,269 +1,315 @@
-// --- CONFIGURATION: PASTE YOUR 4 API KEYS HERE ---
-const EODHD_API_KEY = "YOUR_EODHD_API_KEY_HERE";
-const FMP_API_KEY = "YOUR_FMP_API_KEY_HERE";
-const NEWS_API_KEY = "YOUR_NEWS_API_KEY_HERE";
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";
-// --- END OF CONFIGURATION ---
+// --- ⬇️ IMPORTANT: ADD YOUR API KEY HERE ⬇️ ---
+const GEMINI_API_KEY = "AIzaSyDOTksI9KbJy8YRqDbY6PBKtyxUIBayH2s"; // Get from Google AI Studio.
 
-// DOM Element Selectors
-const tickerInput = document.getElementById('tickerInput');
-const analyzeBtn = document.getElementById('analyzeBtn');
-const loader = document.getElementById('loader');
-const errorContainer = document.getElementById('error');
-const errorMessage = document.getElementById('errorMessage');
-const resultsContainer = document.getElementById('resultsContainer');
+// --- DOM Element References ---
+const searchInput = document.getElementById('company-search-input');
+const analyzeButton = document.getElementById('analyze-button');
+const initialStateSection = document.getElementById('initial-state');
+const loadingSection = document.getElementById('loading-section');
+const loadingMessage = document.getElementById('loading-message');
+const errorSection = document.getElementById('error-section');
+const errorMessage = document.getElementById('error-message');
+const resultsWrapper = document.getElementById('results-wrapper');
+const companyNameDisplay = document.getElementById('company-name-display');
+const companySourceDisplay = document.getElementById('company-source-display');
+const financialTableBody = document.getElementById('financial-table-body');
+const keyRatiosContainer = document.getElementById('key-ratios');
+const performanceList = document.getElementById('performance-analysis-list');
+const newsList = document.getElementById('news-headlines-list');
+const forecastRecommendation = document.getElementById('forecast-recommendation');
+const forecastPreSentimentTarget = document.getElementById('forecast-pre-sentiment-target');
+const forecastPostSentimentTarget = document.getElementById('forecast-post-sentiment-target');
+const forecastTimeline = document.getElementById('forecast-timeline');
+const forecastExpectedReturn = document.getElementById('forecast-expected-return');
+const forecastReasoning = document.getElementById('forecast-reasoning');
+const chartCanvas = document.getElementById('stockPriceChart');
+let stockChartInstance = null;
 
-// Result display elements
-const companyLogo = document.getElementById('companyLogo');
-const companyName = document.getElementById('companyName');
-const companyTicker = document.getElementById('companyTicker');
-const avgReturn = document.getElementById('avgReturn');
-const preCovidReturn = document.getElementById('preCovidReturn');
-const duringCovidReturn = document.getElementById('duringCovidReturn');
-const postCovidReturn = document.getElementById('postCovidReturn');
-const recommendation = document.getElementById('recommendation');
-const priceTarget = document.getElementById('priceTarget');
-const expectedReturn = document.getElementById('expectedReturn');
-const holdingPeriod = document.getElementById('holdingPeriod');
-const rationale = document.getElementById('rationale');
-const futureProjection = document.getElementById('futureProjection');
-const newsSentiment = document.getElementById('newsSentiment');
-const newsList = document.getElementById('newsList');
-
-// --- Event Listeners ---
-analyzeBtn.addEventListener('click', handleAnalysis);
-tickerInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        handleAnalysis();
+// --- Dummy Data for Initial Load ---
+const dummyCompanyData = {
+    companyName: "Bharat Innovations Tech",
+    dataSource: "Displaying pre-loaded dummy data.",
+    financials: [
+        { year: 2015, revenue: "5,000", netProfit: "500", eps: null },
+        { year: 2016, revenue: "6,500", netProfit: "700", eps: null },
+        { year: 2017, revenue: "8,000", netProfit: "950", eps: null },
+        { year: 2018, revenue: "10,000", netProfit: "1,100", eps: null },
+        { year: 2019, revenue: "12,000", netProfit: "1,400", eps: null },
+        { year: 2020, revenue: "13,000", netProfit: "1,200", eps: 18.0 },
+        { year: 2021, revenue: "16,000", netProfit: "2,200", eps: 33.0 },
+        { year: 2022, revenue: "20,000", netProfit: "3,000", eps: 45.0 },
+        { year: 2023, revenue: "25,000", netProfit: "4,000", eps: 60.0 },
+        { year: 2024, revenue: "28,000", netProfit: "4,500", eps: 67.5 },
+    ],
+    ratios: { 
+        peRatio: "35.2", 
+        debtToEquity: "0.4",
+        roe: "20.5%",
+        pbRatio: "7.1"
+    },
+    chartData: {
+        labels: ["2015-01-01", "2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01", "2024-01-01", new Date().toISOString().split('T')[0]],
+        prices: [200, 350, 500, 800, 1000, 900, 1300, 1800, 2400, 3000, 3200]
+    },
+    performance: { 
+        preCovidReturn: 25.0,
+        duringCovidReturn: 44.4,
+        postCovidReturn: 146.1,
+        last1YearReturn: 33.3, 
+        last3YearReturn: 77.8,
+        last5YearReturn: 255.6
+    },
+    news: [
+        { headline: "Bharat Innovations signs major deal with European conglomerate for AI solutions.", sentiment: "positive" },
+        { headline: "Q4 profits jump 20% YoY, beating analyst expectations.", sentiment: "positive" },
+        { headline: "Increased competition from new market entrants puts pressure on margins.", sentiment: "negative" },
+        { headline: "Company announces new R&D center focused on sustainable technology.", sentiment: "neutral" }
+    ],
+    forecast: {
+        recommendation: "BUY", 
+        preSentimentTarget: "₹3,800",
+        postSentimentTarget: "₹3,950", 
+        timeline: "9-12 months",
+        expectedReturn: "23.4%",
+        reasoning: "Bharat Innovations Tech demonstrates robust revenue growth and improving profit margins. Strategic partnerships and expansion into high-demand sectors like AI and green tech provide a strong future outlook. Positive market sentiment following recent deal announcements suggests further upside potential."
     }
-});
+};
 
-// --- Main Handler ---
-async function handleAnalysis() {
-    const ticker = tickerInput.value.trim().toUpperCase();
-    if (!ticker) {
-        showError("Please enter a stock ticker.");
-        return;
+// --- Utility Functions ---
+function getRecommendationColor(recommendation) {
+    if (!recommendation) return "text-gray-500";
+    switch (recommendation.toUpperCase()) {
+        case "BUY": return "text-green-600";
+        case "SELL": return "text-red-600";
+        case "HOLD": default: return "text-yellow-500";
     }
-    if (EODHD_API_KEY.includes("YOUR") || FMP_API_KEY.includes("YOUR") || NEWS_API_KEY.includes("YOUR") || GEMINI_API_KEY.includes("YOUR")) {
-        showError("One or more API keys are missing. Please add your API keys at the top of the script.js file.");
-        return;
-    }
+}
 
-    // Reset UI
-    resultsContainer.classList.add('hidden');
-    errorContainer.classList.add('hidden');
-    loader.classList.remove('hidden');
+// --- Main Data Aggregation and Analysis Flow ---
+async function getAiPoweredData(companyName) {
+    loadingMessage.textContent = `Gathering and analyzing data for ${companyName}... This may take a moment.`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
+    
+    const systemInstruction = "You are an expert financial data API. Your task is to use Google Search to find real-time, accurate financial data for a given Indian company. You must provide a complete analysis and return all data strictly in the specified JSON format.";
 
+    const userPrompt = `Please perform a complete financial analysis for the Indian company: "${companyName}".
+
+Use your search capabilities to find the most recent and relevant data available.
+
+Return your complete findings in the following strict JSON format. Do not include any text, notes, or markdown formatting before or after the JSON object.
+
+**JSON FORMAT INSTRUCTIONS:**
+- "companyName": The official full name of the company.
+- "dataSource": Set this to "Data sourced via Google Search."
+- "ticker": The correct NSE ticker symbol (e.g., "RELIANCE.NS").
+- "financials": An array of financial data since 2015.
+  - "year": The calendar year for the data.
+  - "revenue": A string representing total revenue in crores (e.g., "1,50,000").
+  - "netProfit": A string representing net profit in crores (e.g., "25,000").
+  - "eps": The trailing twelve months (TTM) Earnings Per Share as a number. Only provide this for the most recent year.
+- "ratios": The most recent key ratios.
+  - "peRatio": The TTM P/E ratio as a string.
+  - "debtToEquity": The most recent Debt to Equity ratio as a string.
+  - "roe": The Return on Equity as a string (e.g., "15.5%").
+  - "pbRatio": The Price to Book ratio as a string.
+- "chartData":
+  - "labels": An array of date strings in "YYYY-MM-DD" format, representing today and the start of each year since 2015.
+  - "prices": An array of numbers representing the approximate closing stock price on those corresponding dates.
+- "performance":
+  - "preCovidReturn": Stock return from Jan 2018 to Dec 2019, as a number.
+  - "duringCovidReturn": Stock return from Jan 2020 to Dec 2021, as a number.
+  - "postCovidReturn": Stock return from Jan 2022 to present, as a number.
+  - "last1YearReturn": The percentage stock return over the last 1 year, as a number.
+  - "last3YearReturn": The percentage stock return over the last 3 years, as a number.
+  - "last5YearReturn": The percentage stock return over the last 5 years, as a number.
+- "news": An array of 3-4 recent, relevant news headlines.
+  - "headline": The news headline string.
+  - "sentiment": The sentiment of the headline ("positive", "negative", or "neutral").
+- "forecast": Your AI-powered analysis.
+  - "recommendation": Your final recommendation ("BUY", "HOLD", or "SELL").
+  - "preSentimentTarget": Your calculated target price based ONLY on financial data, as a string (e.g., "₹X,XXX.XX").
+  - "postSentimentTarget": Your FINAL target price after factoring in news sentiment, as a string (e.g., "₹X,XXX.XX").
+  - "timeline": The estimated timeline as a string (e.g., "X-Y months").
+  - "expectedReturn": The potential return based on the FINAL target price, as a string (e.g., "XX.X%").
+  - "reasoning": A concise paragraph (max 150 words) justifying your recommendation. Explain how news sentiment may have adjusted the final target from the pre-sentiment target.`;
+
+    const payload = {
+        contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+        tools: [{ "google_search": {} }],
+        systemInstruction: { parts: [{ text: systemInstruction }] }
+    };
+    
     try {
-        const [financialData, newsData, profileData] = await Promise.all([
-            fetchFinancialData(ticker),
-            fetchNewsData(ticker),
-            fetchCompanyProfile(ticker)
-        ]);
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (!response.ok) {
+            const errorBody = await response.json();
+            throw new Error(errorBody.error?.message || "The request to the AI model failed.");
+        }
+        const responseData = await response.json();
+        let jsonText = responseData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!jsonText) {
+            throw new Error("Received an empty response from the AI model.");
+        }
+        
+        const jsonMatch = jsonText.match(/```json\n([\s\S]*?)\n```/);
+        if (jsonMatch && jsonMatch[1]) {
+            jsonText = jsonMatch[1];
+        }
 
-        const processedHistoricalData = processHistoricalData(financialData.timeSeries);
-        const prompt = createGeminiPrompt(processedHistoricalData, newsData.articles, profileData.Name);
-        const aiResponse = await getAIEvaluation(prompt);
-
-        displayResults(profileData, processedHistoricalData, newsData, aiResponse);
-
-    } catch (err) {
-        console.error(err);
-        showError(err.message || "An unknown error occurred.");
-    } finally {
-        loader.classList.add('hidden');
+        return JSON.parse(jsonText);
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+        throw new Error(`Failed to get AI analysis: ${error.message}`);
     }
 }
 
-// --- API Fetching Functions ---
+// --- UI Rendering Functions ---
 
-async function fetchFinancialData(ticker) {
-    const targetUrl = `https://eodhistoricaldata.com/api/eod/${ticker}?api_token=${EODHD_API_KEY}&fmt=json&period=d`;
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+function displayCompanyData(data) {
+    companyNameDisplay.textContent = data.companyName;
+    companySourceDisplay.textContent = data.dataSource;
 
-    const response = await fetch(proxyUrl);
-    if (!response.ok) throw new Error("Failed to fetch financial data. The proxy or API might be down.");
-
-    const responseText = await response.text();
-    let data;
-    try {
-        data = JSON.parse(responseText);
-    } catch (e) {
-        throw new Error(`The financial data API returned an error: "${responseText}"`);
-    }
-
-    if (!data || data.length === 0) {
-        throw new Error("No time series data found for this ticker.");
-    }
-
-    const timeSeries = {};
-    for (const day of data) {
-        timeSeries[day.date] = { '5. adjusted close': day.adjusted_close };
-    }
-    return { timeSeries };
-}
-
-async function fetchCompanyProfile(ticker) {
-    const url = `https://financialmodelingprep.com/api/v3/profile/${ticker}?apikey=${FMP_API_KEY}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Failed to fetch company profile from FMP.");
-
-    const data = await response.json();
-    if (!data || data.length === 0) {
-        throw new Error(`Profile for ticker "${ticker}" not found. Please check the symbol.`);
-    }
-    const profile = data[0];
-    return { Name: profile.companyName, Symbol: profile.symbol, logoUrl: profile.image };
-}
-
-async function fetchNewsData(ticker) {
-    const searchTicker = ticker.split('.')[0];
-    const url = `https://newsapi.org/v2/everything?q=${searchTicker}&pageSize=15&sortBy=relevancy&language=en&apiKey=${NEWS_API_KEY}`;
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Failed to fetch news data from NewsAPI.");
-    const data = await response.json();
-    if (data.status === "error") throw new Error(`NewsAPI error: ${data.message}`);
-    return { articles: data.articles };
-}
-
-// --- Data Processing Function ---
-
-function processHistoricalData(timeSeries) {
-    const dates = Object.keys(timeSeries).sort();
-    const today = new Date();
-    const fiveYearsAgo = new Date();
-    fiveYearsAgo.setFullYear(today.getFullYear() - 5);
-
-    const relevantDates = dates.filter(date => new Date(date) >= fiveYearsAgo);
-    if (relevantDates.length < 2) throw new Error("Not enough historical data to perform analysis.");
-
-    const startPrice = parseFloat(timeSeries[relevantDates[0]]['5. adjusted close']);
-    const endPrice = parseFloat(timeSeries[relevantDates[relevantDates.length - 1]]['5. adjusted close']);
-    const years = (new Date(relevantDates[relevantDates.length - 1]) - new Date(relevantDates[0])) / (1000 * 60 * 60 * 24 * 365.25);
-    const cagr = (Math.pow(endPrice / startPrice, 1 / years) - 1) * 100;
-
-    const calculateReturnForPeriod = (start, end) => {
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-        const periodStartDay = relevantDates.find(d => new Date(d) >= startDate);
-        let periodEndDay = [...relevantDates].reverse().find(d => new Date(d) <= endDate);
-        if (!periodEndDay) periodEndDay = relevantDates[relevantDates.length - 1];
-
-        if (!periodStartDay || !periodEndDay) return 0;
-        const periodStartPrice = parseFloat(timeSeries[periodStartDay]['5. adjusted close']);
-        const periodEndPrice = parseFloat(timeSeries[periodEndDay]['5. adjusted close']);
-        return ((periodEndPrice / periodStartPrice) - 1) * 100;
-    };
-
-    return {
-        avgReturn: cagr,
-        preCovidReturn: calculateReturnForPeriod('2019-01-01', '2020-02-29'),
-        duringCovidReturn: calculateReturnForPeriod('2020-03-01', '2021-12-31'),
-        postCovidReturn: calculateReturnForPeriod('2022-01-01', today.toISOString().split('T')[0])
-    };
-}
-
-// --- AI & Prompting Functions ---
-
-function createGeminiPrompt(historicalData, newsArticles, companyName) {
-    const newsHeadlines = newsArticles.slice(0, 10).map(article => article.title).join('\n');
-    return `
-        Analyze the following financial data for the company "${companyName}".
-        Historical Performance:
-        - 5-Year Average Annual Return: ${historicalData.avgReturn.toFixed(2)}%
-        - Pre-COVID Return (Jan 2019 - Feb 2020): ${historicalData.preCovidReturn.toFixed(2)}%
-        - During COVID Return (Mar 2020 - Dec 2021): ${historicalData.duringCovidReturn.toFixed(2)}%
-        - Post-COVID Return (Jan 2022 - Present): ${historicalData.postCovidReturn.toFixed(2)}%
-        Recent News Headlines:
-        ${newsHeadlines}
-    `;
-}
-
-async function getAIEvaluation(promptContent) {
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
-    const systemInstruction = {
-        role: "system",
-        parts: [{
-            text: `You are a financial analyst assistant. Your task is to analyze provided stock data and news to generate an investment recommendation. Provide your output only in a valid JSON format. Do not add explanations outside the JSON. The JSON object must contain these exact keys: newsSentiment ("Positive", "Neutral", "Negative"), futureProjection (one paragraph), recommendation ("Buy", "Hold", "Sell"), priceTarget (a number, representing local currency), holdingPeriod (e.g., "6-12 months"), expectedReturn (e.g., "15-20%"), rationale (2-3 sentences).`
-        }]
-    };
-    const requestBody = {
-        contents: [{ role: "user", parts: [{ text: promptContent }] }],
-        systemInstruction: systemInstruction,
-        generationConfig: { responseMimeType: "application/json" }
-    };
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
+    financialTableBody.innerHTML = '';
+    (data.financials || []).forEach(row => {
+        financialTableBody.innerHTML += `
+            <tr class="text-sm">
+                <td class="px-4 py-2 font-medium text-gray-900">${row.year}</td>
+                <td class="px-4 py-2 text-gray-600">${row.revenue}</td>
+                <td class="px-4 py-2 text-gray-600">${row.netProfit}</td>
+                <td class="px-4 py-2 text-gray-600">${row.eps || 'N/A'}</td>
+            </tr>`;
     });
-    if (!response.ok) {
-        throw new Error(`Gemini API Error: ${response.status} ${response.statusText}`);
-    }
-    const data = await response.json();
-    return JSON.parse(data.candidates[0].content.parts[0].text);
-}
 
-// --- UI Update Functions ---
-
-function displayResults(profile, historical, news, ai) {
-    companyLogo.src = profile.logoUrl;
-    companyLogo.onerror = () => { companyLogo.src = 'https://via.placeholder.com/64?text=N/A'; };
-    companyName.textContent = profile.Name;
-    companyTicker.textContent = profile.Symbol;
-
-    const formatPercent = (val) => `<span class="${val > 0 ? 'text-green-600' : 'text-red-600'}">${val.toFixed(2)}%</span>`;
-    avgReturn.innerHTML = formatPercent(historical.avgReturn);
-    preCovidReturn.innerHTML = formatPercent(historical.preCovidReturn);
-    duringCovidReturn.innerHTML = formatPercent(historical.duringCovidReturn);
-    postCovidReturn.innerHTML = formatPercent(historical.postCovidReturn);
-
-    recommendation.textContent = ai.recommendation;
-    priceTarget.textContent = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(ai.priceTarget);
-    if (profile.Symbol.endsWith(".US")) {
-        priceTarget.textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(ai.priceTarget);
-    }
-    expectedReturn.textContent = ai.expectedReturn;
-    holdingPeriod.textContent = ai.holdingPeriod;
-    rationale.textContent = ai.rationale;
-    futureProjection.textContent = ai.futureProjection;
-    setSentimentColors('recommendation', ai.recommendation);
-
-    newsSentiment.textContent = ai.newsSentiment;
-    setSentimentColors('newsSentiment', ai.newsSentiment);
+    const ratios = data.ratios || {};
+    keyRatiosContainer.innerHTML = `
+        <div class="bg-gray-100 p-2 rounded-md"><strong>P/E:</strong> ${ratios.peRatio || 'N/A'}</div>
+        <div class="bg-gray-100 p-2 rounded-md"><strong>D/E:</strong> ${ratios.debtToEquity || 'N/A'}</div>
+        <div class="bg-gray-100 p-2 rounded-md"><strong>ROE:</strong> ${ratios.roe || 'N/A'}</div>
+        <div class="bg-gray-100 p-2 rounded-md"><strong>P/B:</strong> ${ratios.pbRatio || 'N/A'}</div>`;
+    
+    performanceList.innerHTML = '';
+    const performance = data.performance || {};
+    const perfItems = [
+        { period: 'Pre-COVID (2018-2019)', value: performance.preCovidReturn },
+        { period: 'During-COVID (2020-2021)', value: performance.duringCovidReturn },
+        { period: 'Post-COVID (2022-Present)', value: performance.postCovidReturn },
+        { period: 'Last 1-Year Return', value: performance.last1YearReturn },
+        { period: 'Last 3-Years Return', value: performance.last3YearReturn },
+        { period: 'Last 5-Years Return', value: performance.last5YearReturn }
+    ];
+    perfItems.forEach(item => {
+        if (item.value !== null && !isNaN(item.value)) {
+            const colorClass = item.value >= 0 ? 'text-green-600' : 'text-red-600';
+            const sign = item.value >= 0 ? '+' : '';
+            performanceList.innerHTML += `<li class="flex justify-between items-center text-sm">
+                <span class="text-gray-600">${item.period}</span>
+                <span class="font-bold ${colorClass}">${sign}${item.value.toFixed(1)}%</span></li>`;
+        }
+    });
 
     newsList.innerHTML = '';
-    news.articles.slice(0, 7).forEach(article => {
-        const li = document.createElement('li');
-        li.innerHTML = `<a href="${article.url}" target="_blank" class="hover:text-blue-600 transition-colors">${article.title}</a>`;
-        newsList.appendChild(li);
+    (data.news || []).forEach(item => {
+         let sentimentIndicator = '';
+        switch (item.sentiment) {
+            case 'positive':
+                sentimentIndicator = '<span class="text-green-500 mr-2">▲</span>';
+                break;
+            case 'negative':
+                sentimentIndicator = '<span class="text-red-500 mr-2">▼</span>';
+                break;
+            default:
+                sentimentIndicator = '<span class="text-gray-400 mr-2">●</span>';
+                break;
+        }
+        newsList.innerHTML += `<li class="text-sm text-gray-700 border-b border-gray-100 pb-2 flex items-start">${sentimentIndicator}<span>${item.headline}</span></li>`;
     });
-    resultsContainer.classList.remove('hidden');
+
+    const forecast = data.forecast || {};
+    forecastRecommendation.textContent = forecast.recommendation || 'N/A';
+    forecastRecommendation.className = `text-4xl font-extrabold ${getRecommendationColor(forecast.recommendation)}`;
+    forecastPreSentimentTarget.textContent = forecast.preSentimentTarget || 'N/A';
+    forecastPostSentimentTarget.textContent = forecast.postSentimentTarget || 'N/A';
+    forecastTimeline.textContent = forecast.timeline || 'N/A';
+    forecastExpectedReturn.textContent = forecast.expectedReturn || 'N/A';
+    forecastReasoning.textContent = forecast.reasoning || 'No forecast available.';
+    
+    renderStockChart(data.chartData || { labels: [], prices: [] });
 }
 
-function setSentimentColors(elementId, sentiment) {
-    const el = document.getElementById(elementId);
-    let classes = 'bg-gray-100 text-gray-800';
-    switch (sentiment.toUpperCase()) {
-        case 'BUY':
-        case 'POSITIVE':
-            classes = 'bg-green-100 text-green-800';
-            break;
-        case 'HOLD':
-        case 'NEUTRAL':
-            classes = 'bg-yellow-100 text-yellow-800';
-            break;
-        case 'SELL':
-        case 'NEGATIVE':
-            classes = 'bg-red-100 text-red-800';
-            break;
+function renderStockChart(chartData) {
+    if (stockChartInstance) stockChartInstance.destroy();
+
+    stockChartInstance = new Chart(chartCanvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Stock Price (₹)', data: chartData.prices,
+                borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                borderWidth: 2, pointRadius: 2, tension: 0.1, fill: true,
+            }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            scales: {
+                x: { type: 'time', time: { unit: 'year' } },
+                y: { ticks: { callback: value => '₹' + value.toLocaleString() } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+}
+
+function setUIState(state, message = "") {
+    initialStateSection.classList.toggle('hidden', state !== 'initial');
+    loadingSection.classList.toggle('hidden', state !== 'loading');
+    errorSection.classList.toggle('hidden', state !== 'error');
+    resultsWrapper.classList.toggle('hidden', state !== 'results');
+    
+    analyzeButton.disabled = (state === 'loading');
+    
+    if (state === 'error') errorMessage.textContent = message;
+    if (state === 'loading') loadingMessage.textContent = message;
+}
+
+// --- Event Handlers ---
+
+async function handleAnalysisRequest() {
+    const companyName = searchInput.value.trim();
+    if (!companyName) {
+        setUIState('error', "Please enter a company name.");
+        return;
     }
-    el.className = el.className.replace(/\b(bg|text)-(red|green|yellow|gray)-[1-9]00\b/g, '').trim();
-    el.classList.add(...classes.split(' '));
+
+    setUIState('loading', 'Starting analysis...');
+
+    try {
+        let companyData;
+        const lowerCaseCompanyName = companyName.toLowerCase();
+        if (lowerCaseCompanyName === 'dummy' || lowerCaseCompanyName === 'bharat innovations tech') {
+            companyData = dummyCompanyData;
+        } else {
+            if (!GEMINI_API_KEY) throw new Error("Gemini API key is missing. Cannot generate forecast.");
+            companyData = await getAiPoweredData(companyName);
+        }
+        
+        displayCompanyData(companyData);
+        setUIState('results');
+
+    } catch (error) {
+        console.error("Analysis failed:", error);
+        setUIState('error', error.message);
+    }
 }
 
-function showError(message) {
-    errorMessage.textContent = message;
-    errorContainer.classList.remove('hidden');
-}
+// --- Initial Load and Event Listeners ---
+
+document.addEventListener('DOMContentLoaded', () => {
+    setUIState('initial');
+});
+
+analyzeButton.addEventListener('click', handleAnalysisRequest);
+searchInput.addEventListener('keypress', (event) => {
+    if (event.key === 'Enter') handleAnalysisRequest();
+});
+
