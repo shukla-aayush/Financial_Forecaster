@@ -1,5 +1,5 @@
 // --- ⬇️ IMPORTANT: ADD YOUR API KEY HERE ⬇️ ---
-const GEMINI_API_KEY = "Yahan API daalna hai"; // Get from Google AI Studio.
+const GEMINI_API_KEY = "Fir se daal dena API"; // Get from Google AI Studio.
 
 // --- DOM Element References ---
 const searchInput = document.getElementById('company-search-input');
@@ -259,7 +259,10 @@ function renderStockChart(chartData) {
         }
     });
 }
-
+document.getElementById("analyze-button").addEventListener("click", () => {
+  // Remove no-scroll once user starts analysis
+  document.body.classList.remove("no-scroll");
+});
 function setUIState(state, message = "") {
     initialStateSection.classList.toggle('hidden', state !== 'initial');
     loadingSection.classList.toggle('hidden', state !== 'loading');
@@ -312,5 +315,6 @@ analyzeButton.addEventListener('click', handleAnalysisRequest);
 searchInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') handleAnalysisRequest();
 });
+
 
 
