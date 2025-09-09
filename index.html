@@ -1,159 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FinSight India - AI Financial Forecast</title>
-    
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Google Font: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display.swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display.swap"
+      rel="stylesheet"
+    />
+
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 
     <!-- Custom Stylesheet -->
-    <link rel="stylesheet" href="stylesheets/style.css">
-</head>
-<body class="bg-gray-100">
+    <link rel="stylesheet" href="stylesheets/style.css" />
+  </head>
 
+  <body class="bg-gray-100 no-scroll font-inter relative">
+    <div class="blur-bg"></div>
     <!-- Header and Search Bar -->
     <header class="bg-gray-900 shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row justify-between items-center py-4 gap-4">
-                <h1 class="text-2xl font-bold text-white tracking-tight">FinSight India 🇮🇳</h1>
-                <div class="flex w-full sm:w-auto sm:max-w-md">
-                    <input type="text" id="company-search-input" placeholder="Enter Company Name or 'dummy'" class="flex-grow px-4 py-2 rounded-l-md border border-gray-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <button id="analyze-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-r-md transition duration-200 ease-in-out disabled:bg-gray-500">
-                        Analyze
-                    </button>
-                </div>
-            </div>
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div
+          class="flex flex-col sm:flex-row justify-between items-center py-4 gap-4"
+        >
+          <h1 class="text-2xl font-bold text-white tracking-tight">
+            FinSight India 🇮🇳
+          </h1>
         </div>
+      </div>
     </header>
 
     <!-- Main Content Area -->
-    <main class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <!-- Initial State Message -->
-        <div id="initial-state" class="text-center py-20">
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6-12h.01M18 10h.01M6 10h.01M12 6h.01M3 10h.01M21 10h.01M12 21a9 9 0 110-18 9 9 0 010 18z" />
-            </svg>
-            <h2 class="mt-2 text-2xl font-bold text-gray-900">Welcome to FinSight India</h2>
-            <p class="mt-1 text-base text-gray-500">Enter a company name above to begin your AI-powered financial analysis.</p>
+    <main
+      class="container mx-auto p-2 sm:p-6 lg:p-8 min-h-screen font-inter relative"
+    >
+      <!-- Initial State Message -->
+      <div id="initial-state" class="text-center py-12">
+        <svg
+          class="mx-auto h-12 w-12 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            vector-effect="non-scaling-stroke"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 19v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6-12h.01M18 10h.01M6 10h.01M12 6h.01M3 10h.01M21 10h.01M12 21a9 9 0 110-18 9 9 0 010 18z"
+          />
+        </svg>
+        <h2 class="mt-2 text-2xl font-bold text-white">
+          Welcome to FinSight India
+        </h2>
+        <p class="mt-1 text-base text-gray-400">
+          Enter a company name above to begin your AI-powered financial
+          analysis.
+        </p>
+      </div>
+
+      <!-- Search Bar Centered -->
+      <div class="mt-6 flex justify-center">
+        <div
+          class="relative w-full max-w-lg glass-container rounded-full shadow-2xl"
+        >
+          <!-- Search icon -->
+          <span
+            class="absolute inset-y-0 left-4 flex items-center text-gray-300 pointer-events-none"
+          >
+            🔍
+          </span>
+
+          <!-- Input -->
+          <input
+            type="text"
+            id="company-search-input"
+            placeholder="Enter Company Name or 'dummy'"
+            class="w-full pl-11 pr-32 py-3 rounded-full bg-transparent text-white placeholder-gray-300 focus:outline-none focus:ring-0"
+          />
+
+          <!-- Analyze button (inside input on the right) -->
+          <button
+            id="analyze-button"
+            class="absolute right-2 top-1/2 -translate-y-1/2 bg-gradient-to-r from-indigo-400 to-blue-500 hover:from-indigo-500 hover:to-blue-600 text-white font-semibold px-6 py-2 rounded-full shadow-lg transition duration-200 ease-in-out disabled:opacity-60"
+          >
+            Analyze
+          </button>
         </div>
+      </div>
 
-        <!-- Loading Indicator Section -->
-        <div id="loading-section" class="hidden text-center py-10">
-            <div class="loader"></div>
-            <p id="loading-message" class="text-lg font-medium text-gray-700"></p>
-        </div>
-        
-        <!-- Error Display Section -->
-        <div id="error-section" class="hidden text-center py-10 card bg-red-50 border border-red-200">
-             <h3 class="text-xl font-bold text-red-700 mb-2">Analysis Failed</h3>
-             <p id="error-message" class="text-md text-red-600"></p>
-        </div>
+      <!-- Loading Indicator Section -->
+      <div id="loading-section" class="hidden text-center py-10">
+        <div class="loader"></div>
+        <p id="loading-message" class="text-lg font-medium text-gray-400"></p>
+      </div>
 
-        <!-- Results Wrapper -->
-        <div id="results-wrapper" class="hidden">
-            <!-- Company Name Display -->
-            <h2 class="text-3xl font-extrabold text-gray-900 mb-2" id="company-name-display"></h2>
-            <p class="text-md text-gray-500 mb-6" id="company-source-display"></p>
+      <!-- Error Display Section -->
+      <div
+        id="error-section"
+        class="hidden text-center py-10 card bg-red-50 border border-red-200"
+      >
+        <h3 class="text-xl font-bold text-red-700 mb-2">Analysis Failed</h3>
+        <p id="error-message" class="text-md text-red-600"></p>
+      </div>
 
+      <!-- Results Wrapper -->
+      <div id="results-wrapper" class="hidden">
+        <!-- Company Name Display -->
+        <h2
+          class="text-3xl font-extrabold text-gray-900 mb-2"
+          id="company-name-display"
+        ></h2>
+        <p class="text-md text-gray-500 mb-6" id="company-source-display"></p>
 
-            <!-- Grid Layout for Analysis Cards -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Section 4: AI Forecast -->
-                <div class="card lg:col-span-1 order-first lg:order-last">
-                    <h3 class="text-xl font-bold text-gray-900 mb-4">AI-Powered Forecast</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <span class="text-sm font-medium text-gray-500 block">Recommendation</span>
-                            <p id="forecast-recommendation" class="text-4xl font-extrabold"></p>
-                        </div>
-                        
-                        <div>
-                            <span class="text-sm font-medium text-gray-500 block">Pre-Sentiment Target</span>
-                            <p id="forecast-pre-sentiment-target" class="text-lg font-semibold text-gray-700"></p>
-                        </div>
-                        
-                        <div>
-                            <span class="text-sm font-medium text-gray-500 block">Final Target (Post-Sentiment)</span>
-                            <p id="forecast-post-sentiment-target" class="text-xl font-bold text-gray-800"></p>
-                        </div>
+        <!-- Grid Layout for Analysis Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Section 4: AI Forecast -->
+          <div class="card lg:col-span-1 order-first lg:order-last">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">
+              AI-Powered Forecast
+            </h3>
+            <div class="space-y-4">
+              <div>
+                <span class="text-sm font-medium text-gray-500 block"
+                  >Recommendation</span
+                >
+                <p
+                  id="forecast-recommendation"
+                  class="text-4xl font-extrabold"
+                ></p>
+              </div>
 
-                        <div class="grid grid-cols-2 gap-4 pt-2">
-                             <div>
-                                <span class="text-sm font-medium text-gray-500 block">Timeline</span>
-                                <p id="forecast-timeline" class="text-lg font-bold text-gray-800"></p>
-                            </div>
-                            <div>
-                                <span class="text-sm font-medium text-gray-500 block">Expected Return</span>
-                                <p id="forecast-expected-return" class="text-lg font-bold text-green-600"></p>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 class="text-md font-semibold text-gray-800 mt-2 mb-2">The Logic Behind the Logic</h4>
-                            <p id="forecast-reasoning" class="text-sm text-gray-600 leading-relaxed"></p>
-                        </div>
-                    </div>
+              <div>
+                <span class="text-sm font-medium text-gray-500 block"
+                  >Pre-Sentiment Target</span
+                >
+                <p
+                  id="forecast-pre-sentiment-target"
+                  class="text-lg font-semibold text-gray-700"
+                ></p>
+              </div>
+
+              <div>
+                <span class="text-sm font-medium text-gray-500 block"
+                  >Final Target (Post-Sentiment)</span
+                >
+                <p
+                  id="forecast-post-sentiment-target"
+                  class="text-xl font-bold text-gray-800"
+                ></p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-4 pt-2">
+                <div>
+                  <span class="text-sm font-medium text-gray-500 block"
+                    >Timeline</span
+                  >
+                  <p
+                    id="forecast-timeline"
+                    class="text-lg font-bold text-gray-800"
+                  ></p>
                 </div>
-
-                <!-- Main Content Area: Snapshot and Performance -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Section 1: Financial Snapshot -->
-                    <div class="card">
-                        <h3 class="text-xl font-bold text-gray-900 mb-4">Financial Snapshot</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <h4 class="text-md font-semibold text-gray-800 mb-2">Yearly Performance (₹ Crores)</h4>
-                                <div class="overflow-x-auto rounded-md border border-gray-200 max-h-60">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50 sticky top-0">
-                                            <tr>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Profit</th>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">EPS (₹)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="financial-table-body" class="bg-white divide-y divide-gray-200"></tbody>
-                                    </table>
-                                </div>
-                                <h4 class="text-md font-semibold text-gray-800 mt-4 mb-2">Key Ratios</h4>
-                                <div id="key-ratios" class="flex flex-wrap gap-4 text-sm"></div>
-                            </div>
-                            <div>
-                                <h4 class="text-md font-semibold text-gray-800 mb-2">Stock Price Trend</h4>
-                                <div class="chart-container">
-                                    <canvas id="stockPriceChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="card">
-                            <h3 class="text-xl font-bold text-gray-900 mb-4">Performance Analysis</h3>
-                            <ul class="space-y-3" id="performance-analysis-list"></ul>
-                        </div>
-                        <div class="card">
-                            <h3 class="text-xl font-bold text-gray-900 mb-4">Market Sentiment & News</h3>
-                            <ul class="space-y-3 max-h-60 overflow-y-auto" id="news-headlines-list"></ul>
-                        </div>
-                    </div>
+                <div>
+                  <span class="text-sm font-medium text-gray-500 block"
+                    >Expected Return</span
+                  >
+                  <p
+                    id="forecast-expected-return"
+                    class="text-lg font-bold text-green-600"
+                  ></p>
                 </div>
+              </div>
+              <div>
+                <h4 class="text-md font-semibold text-gray-800 mt-2 mb-2">
+                  The Logic Behind the Logic
+                </h4>
+                <p
+                  id="forecast-reasoning"
+                  class="text-sm text-gray-600 leading-relaxed"
+                ></p>
+              </div>
             </div>
+          </div>
+
+          <!-- Main Content Area: Snapshot and Performance -->
+          <div class="lg:col-span-2 space-y-6">
+            <!-- Section 1: Financial Snapshot -->
+            <div class="card">
+              <h3 class="text-xl font-bold text-gray-900 mb-4">
+                Financial Snapshot
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 class="text-md font-semibold text-gray-800 mb-2">
+                    Yearly Performance (₹ Crores)
+                  </h4>
+                  <div
+                    class="overflow-x-auto rounded-md border border-gray-200 max-h-60"
+                  >
+                    <table class="min-w-full divide-y divide-gray-200">
+                      <thead class="bg-gray-50 sticky top-0">
+                        <tr>
+                          <th
+                            class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Year
+                          </th>
+                          <th
+                            class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Revenue
+                          </th>
+                          <th
+                            class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Net Profit
+                          </th>
+                          <th
+                            class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            EPS (₹)
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody
+                        id="financial-table-body"
+                        class="bg-white divide-y divide-gray-200"
+                      ></tbody>
+                    </table>
+                  </div>
+                  <h4 class="text-md font-semibold text-gray-800 mt-4 mb-2">
+                    Key Ratios
+                  </h4>
+                  <div
+                    id="key-ratios"
+                    class="flex flex-wrap gap-4 text-sm"
+                  ></div>
+                </div>
+                <div>
+                  <h4 class="text-md font-semibold text-gray-800 mb-2">
+                    Stock Price Trend
+                  </h4>
+                  <div class="chart-container">
+                    <canvas id="stockPriceChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="card">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">
+                  Performance Analysis
+                </h3>
+                <ul class="space-y-3" id="performance-analysis-list"></ul>
+              </div>
+              <div class="card">
+                <h3 class="text-xl font-bold text-gray-900 mb-4">
+                  Market Sentiment & News
+                </h3>
+                <ul
+                  class="space-y-3 max-h-60 overflow-y-auto"
+                  id="news-headlines-list"
+                ></ul>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </main>
 
     <script src="scripts/script.js" defer></script>
-</body>
+  </body>
 </html>

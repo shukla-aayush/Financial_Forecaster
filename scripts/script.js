@@ -1,5 +1,5 @@
 // --- ⬇️ IMPORTANT: ADD YOUR API KEY HERE ⬇️ ---
-const GEMINI_API_KEY = "Yahan API daalna hai"; // Get from Google AI Studio.
+const GEMINI_API_KEY = "AIzaSyDOTksI9KbJy8YRqDbY6PBKtyxUIBayH2s"; // Get from Google AI Studio.
 
 // --- DOM Element References ---
 const searchInput = document.getElementById('company-search-input');
@@ -164,7 +164,18 @@ Return your complete findings in the following strict JSON format. Do not includ
 }
 
 // --- UI Rendering Functions ---
+function showResults(companyName) {
+  initialState.classList.add("hidden");
+  loadingState.classList.add("hidden");
+  errorState.classList.add("hidden");
+  resultsSection.classList.remove("hidden");
 
+  // Enable scrolling when results are shown
+  document.body.classList.remove("no-scroll");
+
+  // Update title
+  resultsTitle.textContent = `${companyName} – Financial Insights`;
+}
 function displayCompanyData(data) {
     companyNameDisplay.textContent = data.companyName;
     companySourceDisplay.textContent = data.dataSource;
