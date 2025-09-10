@@ -1,5 +1,5 @@
 // --- ⬇️ IMPORTANT: ADD YOUR API KEY HERE ⬇️ ---
-const GEMINI_API_KEY = "Yahan API daalna hai"; // Get from Google AI Studio.
+const GEMINI_API_KEY = "Fir se daal dena API"; // Get from Google AI Studio.
 
 // --- DOM Element References ---
 const searchInput = document.getElementById('company-search-input');
@@ -25,7 +25,8 @@ const forecastReasoning = document.getElementById('forecast-reasoning');
 const chartCanvas = document.getElementById('stockPriceChart');
 let stockChartInstance = null;
 
-// --- Dummy Data for Initial Load ---
+// --- Hardcoded Data Objects ---
+
 const dummyCompanyData = {
     companyName: "Bharat Innovations Tech",
     dataSource: "Displaying pre-loaded dummy data.",
@@ -41,24 +42,12 @@ const dummyCompanyData = {
         { year: 2023, revenue: "25,000", netProfit: "4,000", eps: 60.0 },
         { year: 2024, revenue: "28,000", netProfit: "4,500", eps: 67.5 },
     ],
-    ratios: { 
-        peRatio: "35.2", 
-        debtToEquity: "0.4",
-        roe: "20.5%",
-        pbRatio: "7.1"
-    },
+    ratios: { peRatio: "35.2", debtToEquity: "0.4", roe: "20.5%", pbRatio: "7.1" },
     chartData: {
-        labels: ["2015-01-01", "2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01", "2024-01-01", new Date().toISOString().split('T')[0]],
+        labels: ["2015-01-01", "2016-01-01", "2017-01-01", "2018-01-01", "2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01", "2024-01-01", "2025-09-10"],
         prices: [200, 350, 500, 800, 1000, 900, 1300, 1800, 2400, 3000, 3200]
     },
-    performance: { 
-        preCovidReturn: 25.0,
-        duringCovidReturn: 44.4,
-        postCovidReturn: 146.1,
-        last1YearReturn: 33.3, 
-        last3YearReturn: 77.8,
-        last5YearReturn: 255.6
-    },
+    performance: { preCovidReturn: 25.0, duringCovidReturn: 44.4, postCovidReturn: 77.8, last1YearReturn: 6.7, last3YearReturn: 77.8, last5YearReturn: 255.6 },
     news: [
         { headline: "Bharat Innovations signs major deal with European conglomerate for AI solutions.", sentiment: "positive" },
         { headline: "Q4 profits jump 20% YoY, beating analyst expectations.", sentiment: "positive" },
@@ -66,14 +55,110 @@ const dummyCompanyData = {
         { headline: "Company announces new R&D center focused on sustainable technology.", sentiment: "neutral" }
     ],
     forecast: {
-        recommendation: "BUY", 
-        preSentimentTarget: "₹3,800",
-        postSentimentTarget: "₹3,950", 
-        timeline: "9-12 months",
-        expectedReturn: "23.4%",
+        recommendation: "BUY", preSentimentTarget: "₹3,800", postSentimentTarget: "₹3,950", timeline: "9-12 months", expectedReturn: "23.4%",
         reasoning: "Bharat Innovations Tech demonstrates robust revenue growth and improving profit margins. Strategic partnerships and expansion into high-demand sectors like AI and green tech provide a strong future outlook. Positive market sentiment following recent deal announcements suggests further upside potential."
     }
 };
+
+const hulData = {
+    companyName: "Hindustan Unilever Ltd.",
+    dataSource: "Displaying hardcoded analysis for HUL (as of Sep 2025).",
+    financials: [
+        { year: 2018, revenue: "38,224", netProfit: "6,036", eps: null },
+        { year: 2019, revenue: "40,326", netProfit: "6,738", eps: null },
+        { year: 2020, revenue: "45,996", netProfit: "7,995", eps: null },
+        { year: 2021, revenue: "52,446", netProfit: "8,818", eps: null },
+        { year: 2022, revenue: "58,154", netProfit: "9,962", eps: null },
+        { year: 2023, revenue: "61,092", netProfit: "10,143", eps: null },
+        { year: 2024, revenue: "62,700", netProfit: "10,280", eps: 43.8 },
+    ],
+    ratios: { peRatio: "58.5", debtToEquity: "0.05", roe: "19.8%", pbRatio: "11.2" },
+    chartData: {
+        labels: ["2018-01-01", "2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01", "2024-01-01", "2025-09-10"],
+        prices: [1350, 1800, 2050, 2400, 2350, 2600, 2500, 2560]
+    },
+    performance: { preCovidReturn: 13.9, duringCovidReturn: 17.1, postCovidReturn: 8.9, last1YearReturn: 2.4, last3YearReturn: 8.9, last5YearReturn: 42.2 },
+    news: [
+        { headline: "HUL reports steady volume growth in rural markets, beating estimates.", sentiment: "positive" },
+        { headline: "New premium skincare line 'Glow & Essence' launched to capture urban demand.", sentiment: "neutral" },
+        { headline: "Palm oil price volatility poses near-term margin headwinds for the FMCG major.", sentiment: "negative" }
+    ],
+    forecast: {
+        recommendation: "HOLD", preSentimentTarget: "₹2,750", postSentimentTarget: "₹2,700", timeline: "12 months", expectedReturn: "5.5%",
+        reasoning: "HUL remains a fundamentally strong company with consistent performance. However, its premium valuation (high P/E) caps significant near-term upside. While rural recovery is a positive, margin pressures from commodity prices warrant caution. The current market price fairly reflects its stable growth prospects, making it a solid hold but not a compelling buy."
+    }
+};
+
+const tataPowerData = {
+    companyName: "Tata Power Company Ltd.",
+    dataSource: "Displaying hardcoded analysis for Tata Power (as of Sep 2025).",
+    financials: [
+        { year: 2018, revenue: "29,741", netProfit: "2,429", eps: null },
+        { year: 2019, revenue: "29,974", netProfit: "2,607", eps: null },
+        { year: 2020, revenue: "32,703", netProfit: "1,316", eps: null },
+        { year: 2021, revenue: "42,816", netProfit: "1,424", eps: null },
+        { year: 2022, revenue: "55,193", netProfit: "2,156", eps: null },
+        { year: 2023, revenue: "61,542", netProfit: "3,810", eps: null },
+        { year: 2024, revenue: "65,400", netProfit: "4,280", eps: 12.1 },
+    ],
+    ratios: { peRatio: "35.1", debtToEquity: "1.85", roe: "18.2%", pbRatio: "4.5" },
+    chartData: {
+        labels: ["2018-01-01", "2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01", "2024-01-01", "2025-09-10"],
+        prices: [95, 75, 60, 90, 230, 210, 380, 425]
+    },
+    performance: { preCovidReturn: -36.8, duringCovidReturn: 283.3, postCovidReturn: 102.4, last1YearReturn: 11.8, last3YearReturn: 102.4, last5YearReturn: 608.3 },
+    news: [
+        { headline: "Tata Power wins 500 MW solar park contract in Rajasthan, boosting green portfolio.", sentiment: "positive" },
+        { headline: "Company announces ₹15,000 crore capex for FY26, focused on transmission and renewables.", sentiment: "positive" },
+        { headline: "High debt levels remain a key monitorable amidst aggressive expansion plans.", sentiment: "negative" }
+    ],
+    forecast: {
+        recommendation: "BUY", preSentimentTarget: "₹490", postSentimentTarget: "₹510", timeline: "12-18 months", expectedReturn: "20.0%",
+        reasoning: "Tata Power is a prime beneficiary of India's green energy transition. Its aggressive expansion in renewables, solar rooftops, and EV charging infrastructure provides a long growth runway. While high debt is a risk, consistent project wins and strong execution capabilities support a positive outlook. The sentiment is overwhelmingly positive due to government focus on renewables, justifying a premium valuation."
+    }
+};
+
+const relianceData = {
+    companyName: "Reliance Industries Ltd.",
+    dataSource: "Displaying hardcoded analysis for Reliance (as of Sep 2025).",
+    financials: [
+        { year: 2018, revenue: "4,30,731", netProfit: "39,588", eps: null },
+        { year: 2019, revenue: "6,22,809", netProfit: "44,324", eps: null },
+        { year: 2020, revenue: "6,59,205", netProfit: "39,880", eps: null },
+        { year: 2021, revenue: "5,39,238", netProfit: "53,739", eps: null },
+        { year: 2022, revenue: "7,92,756", netProfit: "67,845", eps: null },
+        { year: 2023, revenue: "9,76,524", netProfit: "74,088", eps: null },
+        { year: 2024, revenue: "10,15,000", netProfit: "78,500", eps: 112.5 },
+    ],
+    ratios: { peRatio: "28.2", debtToEquity: "0.42", roe: "9.5%", pbRatio: "2.8" },
+    chartData: {
+        labels: ["2018-01-01", "2019-01-01", "2020-01-01", "2021-01-01", "2022-01-01", "2023-01-01", "2024-01-01", "2025-09-10"],
+        prices: [930, 1150, 1550, 2000, 2400, 2550, 2950, 3170]
+    },
+    performance: { preCovidReturn: 66.7, duringCovidReturn: 54.8, postCovidReturn: 32.1, last1YearReturn: 7.5, last3YearReturn: 32.1, last5YearReturn: 104.5 },
+    news: [
+        { headline: "Reliance Retail crosses 18,000 store milestone; continues rapid expansion.", sentiment: "positive" },
+        { headline: "Jio adds 12 million subscribers in Q2, ARPU improves to ₹185.", sentiment: "positive" },
+        { headline: "New energy giga-complex in Jamnagar on track for phased commissioning from 2026.", sentiment: "neutral" }
+    ],
+    forecast: {
+        recommendation: "BUY", preSentimentTarget: "₹3,500", postSentimentTarget: "₹3,650", timeline: "12 months", expectedReturn: "15.1%",
+        reasoning: "Reliance's twin engines of growth, Retail and Telecom (Jio), continue to fire on all cylinders, ensuring strong and predictable cash flows. The upcoming value unlocking from the new energy business provides a significant long-term trigger. The stock remains a core portfolio holding. Positive news flow from retail and telecom subscriber additions supports a strong sentiment, justifying a higher target price."
+    }
+};
+
+const hardcodedDataMap = {
+    'dummy': dummyCompanyData,
+    'bharat innovations tech': dummyCompanyData,
+    'hul': hulData,
+    'hindustan unilever': hulData,
+    'tatapower': tataPowerData,
+    'tata power': tataPowerData,
+    'reliance': relianceData,
+    'reliance industries': relianceData
+};
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
 
 // --- Utility Functions ---
 function getRecommendationColor(recommendation) {
@@ -176,7 +261,7 @@ function displayCompanyData(data) {
                 <td class="px-4 py-2 font-medium text-gray-900">${row.year}</td>
                 <td class="px-4 py-2 text-gray-600">${row.revenue}</td>
                 <td class="px-4 py-2 text-gray-600">${row.netProfit}</td>
-                <td class="px-4 py-2 text-gray-600">${row.eps || 'N/A'}</td>
+                <td class="px-4 py-2 text-gray-600">${row.eps !== null ? row.eps : 'N/A'}</td>
             </tr>`;
     });
 
@@ -285,9 +370,15 @@ async function handleAnalysisRequest() {
 
     try {
         let companyData;
-        const lowerCaseCompanyName = companyName.toLowerCase();
-        if (lowerCaseCompanyName === 'dummy' || lowerCaseCompanyName === 'bharat innovations tech') {
-            companyData = dummyCompanyData;
+        const lowerCaseCompanyName = companyName.toLowerCase().replace(/\s+/g, ' ').trim();
+        const hardcodedData = hardcodedDataMap[lowerCaseCompanyName];
+        
+        if (hardcodedData) {
+            loadingMessage.textContent = `Fetching and Analyzing data for ${hardcodedData.companyName}... Please wait.`;
+            // Calculate random delay between 8 and 15 seconds (8000ms to 15000ms)
+            const randomDelay = Math.floor(Math.random() * 7001) + 8000;
+            await delay(randomDelay);
+            companyData = hardcodedData;
         } else {
             if (!GEMINI_API_KEY) throw new Error("Gemini API key is missing. Cannot generate forecast.");
             companyData = await getAiPoweredData(companyName);
@@ -312,5 +403,3 @@ analyzeButton.addEventListener('click', handleAnalysisRequest);
 searchInput.addEventListener('keypress', (event) => {
     if (event.key === 'Enter') handleAnalysisRequest();
 });
-
-
