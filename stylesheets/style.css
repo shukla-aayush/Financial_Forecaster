@@ -12,7 +12,7 @@ body {
 .blur-bg {
   position: absolute;
   inset: 0;
-  background-image: url('/stylesheets/bg1.jpg');
+  background-image: url('https://drive.google.com/uc?export=view&id=14bdJYnRfatq9P1uohCQvH6zeCP1LAfur/');
   background-size: cover;
   background-position: center;
   filter: blur(4px) brightness(0.7); /* blur + darken */
@@ -44,4 +44,5 @@ body {
   backdrop-filter: blur(14px) saturate(160%);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.25);
+
 }
