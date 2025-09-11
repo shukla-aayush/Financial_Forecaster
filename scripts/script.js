@@ -1,5 +1,5 @@
 // --- ⬇️ IMPORTANT: ADD YOUR API KEY HERE ⬇️ ---
-const GEMINI_API_KEY = "Fir se daal dena API"; // Get from Google AI Studio.
+const GEMINI_API_KEY = "AIzaSyDOTksI9KbJy8YRqDbY6PBKtyxUIBayH2s"; // Get from Google AI Studio.
 
 // --- DOM Element References ---
 const searchInput = document.getElementById('company-search-input');
